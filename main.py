@@ -1,16 +1,65 @@
-# This is a sample Python script.
+## Testing API functionality ###
+import psycopg2
+import psycopg2.extras
+import requests
+import json
+import yaml
+from flask import Flask
+app = Flask(__name__)
+from flask_sqlalchemy import SQLAlchemy
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+
+## Connection Setup ##
+db2 = yaml.load(open('info.yaml'), Loader=yaml.FullLoader)
+DB_Host = db2["DB_Host"]
+DB_Name = db2["DB_Name"]
+DB_User = db2["DB_User"]
+DB_Pass = db2["DB_Pass"]
+DB_Port = db2["DB_Port"]
+DB_Expected = db2["DB_Expected"]
+db = SQLAlchemy(app)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+
+## Connection Test ##
+print("Attempting to Connect")
+con = psycopg2.connect(dbname=DB_Name,user=DB_User,password=DB_Pass,host=DB_Host,port=DB_Port)
+cur = con.cursor()
+cur.execute('SELECT version()')
+version = cur.fetchone()[0]
+
+if version == DB_Expected:
+    print("Connection was verified")
+    print("")
+
+else:
+    print("Connection could not be verified, proceed with caution")
+
+con.close()
+## Models ##
+
+class Member(db.Model):
+    __tablename__ = 'Members'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    Membership = db.Column(db.String(20))
+    Rank = db.Column(db.String(30))
+
+    def __repr__(self):
+        return f"{self.id} - {self.name} - {self.Membership} - {self.Rank}"
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+## Routes ##
+
+@app.route('/')
+def index():
+    con = psycopg2.connect(dbname=DB_Name, user=DB_User, password=DB_Pass, host=DB_Host, port=DB_Port)
+    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    cur.execute("SELECT * FROM \"EmpireManagmentWebsite\".\"Members\"")
+
+    Members=cur.fetchall()
+    print(Members)
+    con.close()
+    return str(Members)
