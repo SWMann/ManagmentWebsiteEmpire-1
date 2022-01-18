@@ -1,6 +1,7 @@
 ## Testing API functionality ###
 import psycopg2
 import psycopg2.extras
+import functions
 import requests
 import json
 import yaml
@@ -23,21 +24,28 @@ db = SQLAlchemy(app)
 
 ## Connection Test ##
 print("Attempting to Connect")
-con = psycopg2.connect(dbname=DB_Name,user=DB_User,password=DB_Pass,host=DB_Host,port=DB_Port)
+con = psycopg2.connect(dbname=DB_Name,user=DB_User,password=DB_Pass,host=DB_Host,port=DB_Port,connect_timeout=3)
 cur = con.cursor()
 cur.execute('SELECT version()')
 version = cur.fetchone()[0]
 
-if version == DB_Expected:
+if DB_Expected in version:
     print("Connection was verified")
     print("")
 
 else:
     print("Connection could not be verified, proceed with caution")
-
+    print(version)
 con.close()
-## Models ##
 
+## Connection Test 2 ##
+
+print(functions.GetAllMembers())
+
+
+
+## Models ##
+    # TODO: Setup intergration with postgres
 class Member(db.Model):
     __tablename__ = 'Members'
     id = db.Column(db.Integer, primary_key=True)
@@ -63,3 +71,10 @@ def index():
     print(Members)
     con.close()
     return str(Members)
+
+
+
+
+Member = functions.GetAMember("GamingPidgeon")
+
+print(Member)
