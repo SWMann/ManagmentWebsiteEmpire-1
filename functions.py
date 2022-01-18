@@ -38,3 +38,25 @@ def GetAMember(Name):
             return x
             break
     print("Could not find that user")
+
+def GetAllCapitalShips():
+    con = psycopg2.connect(dbname=DB_Name, user=DB_User, password=DB_Pass, host=DB_Host, port=DB_Port)
+    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    cur.execute("SELECT * FROM \"EmpireManagmentWebsite\".\"Capital Ships\"")
+
+    CapitalShips=cur.fetchall()
+
+    con.close()
+
+    return CapitalShips
+
+def GetACapitalShip(Name):
+    Capitals = GetAllCapitalShips()
+    for x in Capitals:
+        print(x[1])
+        if x[1] == Name:
+            print("Found It!")
+            return x
+            break
+    print("Could not find that Capital ship")

@@ -75,6 +75,10 @@ def index():
 
 
 
-Member = functions.GetAMember("GamingPidgeon")
+Member = functions.GetAMember("Qrahn")
 
 print(Member)
+
+Capitals = functions.GetAllCapitalShips()
+
+print(functions.GetACapitalShip("Reliance"))
